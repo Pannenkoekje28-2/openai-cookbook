@@ -4,12 +4,14 @@
 
 import requests
 import re
+
 import urllib.request
 from bs4 import BeautifulSoup
 from collections import deque
 from html.parser import HTMLParser
 from urllib.parse import urlparse
 import os
+print(os.environ)
 import pandas as pd
 import tiktoken
 import openai
@@ -17,12 +19,20 @@ import numpy as np
 from openai.embeddings_utils import distances_from_embeddings, cosine_similarity
 from ast import literal_eval
 
+api_key = os.environ.get("OPENAI_API_KEY")
+if not api_key:
+    raise EnvironmentError("OPENAI_API_KEY not found in environment variable")
+OPENAI_LOG = os.environ.get("OPENAI_LOG")
+
+import time
+time.sleep(1)
+
 # Regex pattern to match a URL
 HTTP_URL_PATTERN = r'^http[s]{0,1}://.+$'
 
 # Define root domain to crawl
-domain = "openai.com"
-full_url = "https://openai.com/"
+domain = "mdriessenprojects.com"
+full_url = "https://mdriessenprojects.com/"
 
 # Create a class to parse the HTML and get the hyperlinks
 class HyperlinkParser(HTMLParser):
@@ -136,6 +146,7 @@ def crawl(url):
         # Get the next URL from the queue
         url = queue.pop()
         print(url) # for debugging and to see the progress
+        time.sleep(1)
 
         # Save text from the url to a <url>.txt file
         with open('text/'+local_domain+'/'+url[8:].replace("/", "_") + ".txt", "w", encoding="UTF-8") as f:
@@ -166,10 +177,10 @@ crawl(full_url)
 ################################################################################
 
 def remove_newlines(serie):
-    serie = serie.str.replace('\n', ' ')
-    serie = serie.str.replace('\\n', ' ')
-    serie = serie.str.replace('  ', ' ')
-    serie = serie.str.replace('  ', ' ')
+    serie = serie.str.replace('\n', ' ', regex=True)
+    serie = serie.str.replace('\\n', ' ', regex=True)
+    serie = serie.str.replace('  ', ' ', regex=True)
+    serie = serie.str.replace('  ', ' ', regex=True)
     return serie
 
 
